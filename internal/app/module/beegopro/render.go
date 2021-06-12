@@ -64,7 +64,7 @@ func NewRender(m RenderInfo) *RenderFile {
 		beeLogger.Log.Fatalf("Could not get the relative path: %s", err)
 	}
 
-	modelSchemas := m.Content.ToModelSchemas()
+	modelSchemas := m.Content.ToModelSchemas(m.Option.Driver)
 	camelPrimaryKey := modelSchemas.GetPrimaryKey()
 	importMaps := make(map[string]struct{})
 	if modelSchemas.IsExistTime() {

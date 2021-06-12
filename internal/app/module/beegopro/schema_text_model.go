@@ -11,7 +11,7 @@ type TextModel struct {
 	Extends  []string
 }
 
-func (content TextModel) ToModelInfos() (output []ModelInfo) {
+func (content TextModel) ToModelInfos(drive string) (output []ModelInfo) {
 	namesLen := len(content.Names)
 	ormsLen := len(content.Orms)
 	commentsLen := len(content.Comments)
@@ -29,7 +29,7 @@ func (content TextModel) ToModelInfos() (output []ModelInfo) {
 		if comment == "" {
 			comment = name
 		}
-		inputType, goType, mysqlType, ormTag := getModelType(content.Orms[i])
+		inputType, goType, mysqlType, ormTag := getModelType(content.Orms[i], drive)
 
 		m := ModelInfo{
 			Name:      name,
@@ -37,7 +37,7 @@ func (content TextModel) ToModelInfos() (output []ModelInfo) {
 			GoType:    goType,
 			Orm:       ormTag,
 			Comment:   comment,
-			MysqlType: mysqlType,
+			DbType:    mysqlType,
 			Extend:    "",
 		}
 		// extend value

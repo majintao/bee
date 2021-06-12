@@ -10,7 +10,7 @@ import (
 type ModelInfo struct {
 	Name      string `json:"name"`      // mysql name
 	InputType string `json:"inputType"` // user input type
-	MysqlType string `json:"mysqlType"` // mysql type
+	DbType    string `json:"dbType"`    // db type
 	GoType    string `json:"goType"`    // go type
 	Orm       string `json:"orm"`       // orm tag
 	Comment   string `json:"comment"`   // mysql comment
@@ -34,17 +34,17 @@ func (m ModelInfo) IsPrimaryKey() (flag bool) {
 type ModelInfos []ModelInfo
 
 // to render model schemas
-func (modelInfos ModelInfos) ToModelSchemas() (output ModelSchemas) {
+func (modelInfos ModelInfos) ToModelSchemas(drive string) (output ModelSchemas) {
 	output = make(ModelSchemas, 0)
 	for i, value := range modelInfos {
-		if i == 0 && !value.IsPrimaryKey() {
-			inputType, goType, mysqlType, ormTag := getModelType("auto")
+		if i == 0 && !value.IsPrimaryKey() && drive == "mysql" {
+			inputType, goType, mysqlType, ormTag := getModelType("auto", drive)
 			output = append(output, &ModelSchema{
 				Name:      "id",
 				InputType: inputType,
 				ColumnKey: "PRI",
 				Comment:   "ID",
-				MysqlType: mysqlType,
+				DbType:    mysqlType,
 				GoType:    goType,
 				OrmTag:    ormTag,
 				Extend:    value.Extend,
@@ -55,7 +55,7 @@ func (modelInfos ModelInfos) ToModelSchemas() (output ModelSchemas) {
 			Name:      value.Name,
 			InputType: value.InputType,
 			ColumnKey: value.GetColumnKey(),
-			MysqlType: value.MysqlType,
+			DbType:    value.DbType,
 			Comment:   value.Comment,
 			GoType:    value.GoType,
 			OrmTag:    value.Orm,
@@ -68,7 +68,7 @@ func (modelInfos ModelInfos) ToModelSchemas() (output ModelSchemas) {
 type ModelSchema struct {
 	Name      string // column name
 	InputType string // user input type
-	MysqlType string // mysql type
+	DbType    string // db type
 	ColumnKey string // PRI
 	Comment   string // comment
 	GoType    string // go type

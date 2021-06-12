@@ -120,7 +120,72 @@ func getPackagePath() (packagePath string) {
 	return
 }
 
-func getModelType(orm string) (inputType, goType, mysqlType, tag string) {
+func getModelType(orm string, drive string) (inputType, goType, mongoType, tag string) {
+	if drive == "mongo" {
+		return getMongoModelType(orm)
+	}
+
+	if drive == "mysql" {
+		return getMysqlModelType(orm)
+	}
+
+	beeLogger.Log.Fatalf("not support drive: %s", drive)
+	return
+}
+
+//根据mongo orm类型，获取具体的类型标签
+func getMongoModelType(orm string) (inputType, goType, mongoType, tag string) {
+	kv := strings.SplitN(orm, ",", 2)
+	inputType = kv[0]
+	switch inputType {
+	case "string":
+		goType = "string"
+		tag = "string"
+		mongoType = "String"
+	case "objectId":
+		goType = "bson.ObjectId"
+		tag = "ObjectId"
+		mongoType = "ObjectId"
+	case "date":
+		goType = "*time.Time"
+		tag = "Date"
+		mongoType = "Date"
+	case "int32", "int64":
+		goType = inputType
+		tag = ""
+		mongoType = inputType
+	case "bool":
+		goType = inputType
+		tag = ""
+		mongoType = "Boolean"
+	case "float32", "float64":
+		goType = inputType
+		tag = ""
+		mongoType = inputType
+	case "float":
+		goType = "float64"
+		tag = ""
+		mongoType = "float64"
+	case "object":
+		goType = kv[1]
+		tag = ""
+		mongoType = "object"
+	case "array":
+		goType = fmt.Sprint("[]*%s", kv[1])
+		tag = ""
+		mongoType = "array"
+	default:
+		beeLogger.Log.Fatalf("not support type: %s", inputType)
+	}
+	// user set orm tag
+	if len(kv) == 2 {
+		tag = kv[1]
+	}
+	return
+}
+
+//根据mysql orm类型，获取具体的类型标签
+func getMysqlModelType(orm string) (inputType, goType, mysqlType, tag string) {
 	kv := strings.SplitN(orm, ",", 2)
 	inputType = kv[0]
 	switch inputType {

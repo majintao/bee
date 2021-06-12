@@ -21,7 +21,7 @@ func (t *TextParser) GetRenderInfos(descriptor Descriptor) (output []RenderInfo)
 		output = append(output, RenderInfo{
 			Module:     descriptor.Module,
 			ModelName:  modelName,
-			Content:    content.ToModelInfos(),
+			Content:    content.ToModelInfos(t.userOption.Driver),
 			Option:     t.userOption,
 			Descriptor: descriptor,
 			TmplPath:   t.tmplOption.RenderPath,
