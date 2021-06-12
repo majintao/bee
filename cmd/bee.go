@@ -26,6 +26,7 @@ import (
 	_ "github.com/beego/bee/v2/cmd/commands/dockerize"
 	_ "github.com/beego/bee/v2/cmd/commands/generate"
 	_ "github.com/beego/bee/v2/cmd/commands/hprose"
+	_ "github.com/beego/bee/v2/cmd/commands/httpapi"
 	_ "github.com/beego/bee/v2/cmd/commands/migrate"
 	_ "github.com/beego/bee/v2/cmd/commands/new"
 	_ "github.com/beego/bee/v2/cmd/commands/pack"
