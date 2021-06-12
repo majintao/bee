@@ -12,7 +12,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-package apiapp
+package httpapp
 
 import (
 	"fmt"
@@ -29,21 +29,16 @@ import (
 	"github.com/beego/bee/v2/utils"
 )
 
-var CmdApiapp = &commands.Command{
+var CmdHttpApiApp = &commands.Command{
 	// CustomFlags: true,
-	UsageLine: "api [appname]",
-	Short:     "Creates a Beego API application",
+	UsageLine: "httpapi [appname]",
+	Short:     "创建nono server项目",
 	Long: `
-  The command 'api' creates a Beego API application.
-  now default supoort generate a go modules project.
-
+		创建nono server项目
   {{"Example:"|bold}}
-      $ bee api [appname] [-tables=""] [-driver=mysql] [-conn="root:@tcp(127.0.0.1:3306)/test"]  [-gopath=false] [-beego=v1.12.3]
+      $ bee httpapi [appname] 
 
-  If 'conn' argument is empty, the command will generate an example API application. Otherwise the command
-  will connect to your database and generate models based on the existing tables.
-
-  The command 'api' creates a folder named [appname] with the following structure:
+  创建如下的目录结构: 
 
 	    ├── main.go
 	    ├── go.mod
@@ -121,9 +116,9 @@ var apirouter = `// @APIVersion 1.0.0
 // @Title beego Test API
 // @Description beego has a very cool tools to autogenerate documents for your API
 // @Contact astaxie@gmail.com
-// @TermsOfServiceUrl http://beego.me/
+// @TermsOfServiceUrl httpapi://beego.me/
 // @License Apache 2.0
-// @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
+// @LicenseUrl httpapi://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
 import (
@@ -509,8 +504,8 @@ func (u *UserController) Logout() {
 var apiTests = `package test
 
 import (
-	"net/http"
-	"net/http/httptest"
+	"net/httpapi"
+	"net/httpapi/httptest"
 	"testing"
 	"runtime"
 	"path/filepath"
@@ -529,7 +524,7 @@ func init() {
 
 // TestGet is a sample to run an endpoint test
 func TestGet(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/v1/object", nil)
+	r, _ := httpapi.NewRequest("GET", "/v1/object", nil)
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
 
@@ -550,12 +545,12 @@ var gopath utils.DocValue
 var beegoVersion utils.DocValue
 
 func init() {
-	CmdApiapp.Flag.Var(&generate.Tables, "tables", "List of table names separated by a comma.")
-	CmdApiapp.Flag.Var(&generate.SQLDriver, "driver", "Database driver. Either mysql, postgres or sqlite.")
-	CmdApiapp.Flag.Var(&generate.SQLConn, "conn", "Connection string used by the driver to connect to a database instance.")
-	CmdApiapp.Flag.Var(&gopath, "gopath", "Support go path,default false")
-	CmdApiapp.Flag.Var(&beegoVersion, "beego", "set beego version,only take effect by go mod")
-	commands.AvailableCommands = append(commands.AvailableCommands, CmdApiapp)
+	//CmdHttpApiApp.Flag.Var(&generate.Tables, "tables", "List of table names separated by a comma.")
+	//CmdHttpApiApp.Flag.Var(&generate.SQLDriver, "driver", "Database driver. Either mysql, postgres or sqlite.")
+	//CmdHttpApiApp.Flag.Var(&generate.SQLConn, "conn", "Connection string used by the driver to connect to a database instance.")
+	//CmdHttpApiApp.Flag.Var(&gopath, "gopath", "Support go path,default false")
+	//CmdHttpApiApp.Flag.Var(&beegoVersion, "beego", "set beego version,only take effect by go mod")
+	commands.AvailableCommands = append(commands.AvailableCommands, CmdHttpApiApp)
 }
 
 func createAPI(cmd *commands.Command, args []string) int {
