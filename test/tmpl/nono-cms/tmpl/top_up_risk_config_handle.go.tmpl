@@ -1,0 +1,19 @@
+// @BeeOverwrite YES
+// @BeeGenerateTime {{generateTime}}
+package {{packageName}}
+
+import (
+	"errors"
+	"fmt"
+	"reflect"
+	"strings"
+	"github.com/beego/beego/v2/client/orm"
+	{% for value in packageImports %}"{{value}}"
+    {% endfor %}
+)
+
+type {{modelName|upperFirst}} struct {
+     {% for value in modelSchemas %}{{value.Name|camelString}} {{value.GoType}} `{% if value.OrmTag != "" %} orm:"{{value.OrmTag}}"{% endif %} json:"{{value.Name|camelString|lowerFirst}}" form:"{{value.Name|camelString|lowerFirst}}"` // {{value.Comment}}
+     {% endfor %}
+}
+

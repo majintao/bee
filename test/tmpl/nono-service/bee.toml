@@ -1,0 +1,8 @@
+renderPath = "tmpl"
+[default]
+   pathBeego = "."
+[[descriptor]]
+    module = "controllers"
+    srcName = "top_up_risk_config_handle.go.tmpl"
+    dstPath = "{{pathBeego}}/app/top_up_risk_config_handle.go"
+    once = true

@@ -37,7 +37,7 @@ var DefaultBeegoPro = &Container{
 		GitRemotePath: "",
 		//GitRemotePath: "https://github.com/beego/beego-pro.git",
 		Branch:        "master",
-		GitLocalPath:  "test/gen_test",
+		GitLocalPath:  "test/tmpl", // 模板路径
 		EnableFormat:  true,
 		SourceGen:     "text",
 		EnableGitPull: true,
