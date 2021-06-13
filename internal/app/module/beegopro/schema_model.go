@@ -8,7 +8,7 @@ import (
 
 // parse get the model info
 type ModelInfo struct {
-	Name      string `json:"name"`      // mysql name
+	Name      string `json:"name"`      // db name
 	InputType string `json:"inputType"` // user input type
 	DbType    string `json:"dbType"`    // db type
 	GoType    string `json:"goType"`    // go type

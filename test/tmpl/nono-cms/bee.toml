@@ -4,11 +4,17 @@ renderPath = "tmpl"
 [[descriptor]]
     module = "reqhandler"
     srcName = "handler.go.tmpl"
-    dstPath = "{{pathBeego}}/reqHandler/{{modelName}}Handler.go"
+    dstPath = "{{pathBeego}}/reqHandler/{{modelName}}_handler.go"
     once = true
 [[descriptor]]
     module = "model"
     srcName = "model.go.tmpl"
     dstPath = "{{pathBeego}}/model/{{modelName}}.go"
     once = true
+[[descriptor]]
+    module = "route"
+    srcName = "route.go.tmpl"
+    dstPath = "{{pathBeego}}/route/{{modelName}}_route.go"
+    once = true
+
 

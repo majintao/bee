@@ -13,11 +13,15 @@ import (
 )
 
 type {{modelName|upperFirst}} struct {
-     {% for value in modelSchemas %}{{value.Name|camelString}} {{value.GoType}} `{% if value.OrmTag != "" %} orm:"{{value.OrmTag}}"{% endif %} json:"{{value.Name|camelString|lowerFirst}}" form:"{{value.Name|camelString|lowerFirst}}"` // {{value.Comment}}
+     {% for value in modelSchemas %}{{value.Name|camelString}} {{value.GoType}} `{% if value.Name!= "" %} bson:"{{value.Name}}"{% endif %} json:"{{value.Name|camelString|lowerFirst}}"` // {{value.Comment}}
      {% endfor %}
 }
 
 
-func (t *{{modelName|upperFirst}}) TableName() string {
-        return "{{modelName|snakeString}}"
+func (t *{{modelName|upperFirst}}) GetConfig() nonomongo.ModelConfig {
+	return nonomongo.ModelConfig{
+		DBUrl:   config.GetStringValue("mongodb", "cms_url", ""),
+		DBName:  "CMS",
+		ColName: "{{modelName|snakeString}}",
+	}
 }

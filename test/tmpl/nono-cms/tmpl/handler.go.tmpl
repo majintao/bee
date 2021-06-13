@@ -15,7 +15,7 @@ import (
 type {{modelName|upperFirst}}Params struct {
         Page       int      `json:"page"`
         Limit      int      `json:"limit"`
-    {% for value in modelSchemas %}{{value.Name|camelString}} {{value.GoType}} `json:"{{value.Name|camelString|lowerFirst}}"` // {{value.Comment}}
+    {% for value in modelSchemas %}{{value.Name|camelString}} {{value.GoType}} `json:"{{value.Name|snakeString|lowerFirst}}"` // {{value.Comment}}
     {% endfor %}
 }
 
@@ -52,7 +52,7 @@ func Get{{modelName|upperFirst}}List(ctx *RequestResponseContext, r *http.Reques
         var where = bson.M{}
         {% for value in modelSchemas %}
             if params.{{value.Name|camelString}} != nil {
-        {% if value.OrmTag != "" %} where["{{value.OrmTag}}"] = params.{{value.Name|camelString}}{% endif %}
+        {% if value.OrmTag != "" %} where["{{value.Name|camelString|lowerFirst}}"] = params.{{value.Name|camelString}}{% endif %}
             }
     {% endfor %}
         err := mongo.FindAll(new(cms.{{modelName|upperFirst}}), where).Sort("-_id").Skip(skip).Limit(params.Limit).Retry(3).List(&result)
@@ -90,7 +90,7 @@ func Find{{modelName|upperFirst}}(ctx *RequestResponseContext, r *http.Request) 
         }
         rpPtr.SetBody(result)
 }
-func Update{{modelName|upperFirst}}(ctx *RequestResponseContext, r *http.Request) {
+func AddOrUpdate{{modelName|upperFirst}}(ctx *RequestResponseContext, r *http.Request) {
         rpPtr := ctx.ResponseBodyPtr()
         params := Update{{modelName|upperFirst}}Params{}
         if code, message := CommonCheckAndGetPostBody(&params, r); code != 0 {
@@ -106,13 +106,9 @@ func Update{{modelName|upperFirst}}(ctx *RequestResponseContext, r *http.Request
         }
         var update = bson.M{
                 "$set": bson.M{
-                        "regions":      params.Regions,
-                        "countries":    params.Countries,
-                        "platform":     params.Platform,
-                        "method":       params.Method,
-                        "currencies":   params.Currencies,
-                        "top_up_rules": params.TopUpRules,
-                        "update_time":  time.Now(),
+                   {% for value in modelSchemas %}{% if value.Name!= "" %}"{{value.Name|snakeString}}" : params.{{value.Name|camelString}},{% endif %}
+                   {% endfor %}
+                   "update_time":  time.Now(),
                 },
                 "$setOnInsert": bson.M{"create_time": time.Now()},
         }
@@ -129,8 +125,8 @@ func Update{{modelName|upperFirst}}(ctx *RequestResponseContext, r *http.Request
                 rpPtr.ErrorCodeAndMessage(1, err.Error())
                 return
         }
-        // 更新操作中规则全部被删除的话自动删除整个配置
-        if bson.IsObjectIdHex(params.Id) && len(result.TopUpRules) == 0 {
+
+        if bson.IsObjectIdHex(params.Id)  == 0 {
                 Delete{{modelName|upperFirst}}(params.Id)
         }
         rpPtr.SetBody("success")
@@ -150,3 +146,4 @@ func Delete{{modelName|upperFirst}}ById(_id string) bool {
         }
         return true
 }
+

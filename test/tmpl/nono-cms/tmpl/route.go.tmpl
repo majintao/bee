@@ -1,0 +1,112 @@
+package main
+
+import (
+	"net/http"
+	"os"
+	"strconv"
+
+	"github.com/nicksnyder/go-i18n/i18n"
+	"gopkg.in/mgo.v2"
+
+	regional_budget_job "nonolive/jobs/regional-budget-job"
+	"nonolive/legacy/service/nono_country"
+	"nonolive/nonoutils/cron"
+	"nonolive/nonoutils/mail"
+	"nonolive/nonoutils/nonohttp"
+	"nonolive/servers/cms-api-server/config_logic"
+	"nonolive/servers/cms-api-server/reqhandler"
+	"nonolive/servers/cms-api-server/schedule"
+	"nonolive/servers/cms-api-server/service/official_host"
+	"nonolive/servers/cms-api-server/utils"
+	"nonolive/servers/cms-api-server/utils/args"
+	. "nonolive/servers/cms-api-server/utils/logs"
+	"nonolive/servers/cms-api-server/websrv"
+)
+
+const PATH_PREFIX = "/nonolive/gocmsserv"
+
+func loadI18nFile() {
+	i18n.MustLoadTranslationFile("../etc/i18n/en.all.json")
+	i18n.MustLoadTranslationFile("../etc/i18n/id.all.json")
+	i18n.MustLoadTranslationFile("../etc/i18n/tr.all.json")
+	i18n.MustLoadTranslationFile("../etc/i18n/vi.all.json")
+}
+
+func main() {
+	loadI18nFile()
+	mode := os.Getenv("mode")
+	MainLogger.Infof("mode is %s", mode)
+	defer func() {
+		LogFlushAndClose()
+	}()
+	initMqErr := regional_budget_job.InitMq()
+	if initMqErr != nil {
+		MainLogger.Errorf("init mq fail,err is  %v", initMqErr)
+		return
+	}
+	mail.InitConfig(config_logic.AdminEmail, config_logic.SysEmail, config_logic.SysEmailPass, config_logic.SysEmailHost)
+	_ = utils.WithinFEWebDB(func(database *mgo.Database) error {
+		nono_country.InitCountry(database, &MainLogger)
+		nono_country.InitRegion(database, &MainLogger)
+		return nil
+	})
+	nonohttp.Init(config_logic.HttpTimeoutSeconds, MainLogger)
+
+	s := new(websrv.MiddlewareServe)
+	route := http.NewServeMux()
+
+	// 新增或者修改
+	route.Handle(PATH_PREFIX+"/{{modelName|lowerFirst}}/addOrUpdate", reqhandler.GetHandleFunc(reqhandler.WrapperFunc{RealFunc: reqhandler.AddOrUpdate{{modelName|upperFirst}}, CheckIp: false, CheckSign: false, BanH5: false}))
+    // 根据条件查询
+	route.Handle(PATH_PREFIX+"/{{modelName|lowerFirst}}/get", reqhandler.GetHandleFunc(reqhandler.WrapperFunc{RealFunc: reqhandler.Get{{modelName|upperFirst}}List, CheckIp: false, CheckSign: false, BanH5: false}))
+	// 根据id获取单个信息
+	route.Handle(PATH_PREFIX+"/{{modelName|lowerFirst}}/find", reqhandler.GetHandleFunc(reqhandler.WrapperFunc{RealFunc: reqhandler.Find{{modelName|upperFirst}}, CheckIp: false, CheckSign: false, BanH5: false}))
+	// 删除
+	route.Handle(PATH_PREFIX+"/{{modelName|lowerFirst}}/delete", reqhandler.GetHandleFunc(reqhandler.WrapperFunc{RealFunc: reqhandler.Delete{{modelName|upperFirst}}ById, CheckIp: false, CheckSign: false, BanH5: false}))
+
+	s.Handler = route
+	s.Use(websrv.LogRequest, websrv.BasicMiddleWare, websrv.SetCrossDomain, websrv.BanControl)
+
+	//------- start server
+	var port = 38000
+	if args.ParamHttpPort == nil || *args.ParamHttpPort == 0 {
+		MainLogger.Debugf("failed to parse command line parameter port, use default port %d", port)
+	} else {
+		port = *args.ParamHttpPort
+	}
+
+	runTask()
+	if args.IsRunJob == nil || *args.IsRunJob != 1 {
+		MainLogger.Infof("do not need run job.")
+	} else {
+		initJob()
+	}
+
+	MainLogger.Infof("start server ok. ready to listen port %d.", port)
+	err := http.ListenAndServe(":"+strconv.Itoa(port), s)
+	if err != nil {
+		MainLogger.Errorf("start server fail. %v", err)
+	}
+
+	return
+}
+
+func runTask() {
+	MainLogger.Info("run task.")
+	c := cron.New()
+	c.AddFunc("0 0/10 * * * *", func() {
+		utils.WithinFEWebDB(func(database *mgo.Database) error {
+			nono_country.InitCountry(database, &MainLogger)
+			nono_country.InitRegion(database, &MainLogger)
+			official_host.GetSignOfficialHost()
+
+			return nil
+		})
+	})
+	c.Start()
+}
+
+func initJob() {
+	MainLogger.Info("run job.")
+	schedule.Init()
+}
