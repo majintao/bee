@@ -171,7 +171,7 @@ func getMongoModelType(orm string) (inputType, goType, mongoType, tag string) {
 		tag = ""
 		mongoType = "object"
 	case "array":
-		goType = fmt.Sprint("[]*%s", kv[1])
+		goType = fmt.Sprintf("[]%s", kv[1])
 		tag = ""
 		mongoType = "array"
 	default:

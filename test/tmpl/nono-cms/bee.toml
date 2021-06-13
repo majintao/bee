@@ -2,7 +2,13 @@ renderPath = "tmpl"
 [default]
    pathBeego = "."
 [[descriptor]]
-    module = "controllers"
-    srcName = "top_up_risk_config_handle.go.tmpl"
-    dstPath = "{{pathBeego}}/cms-api-server/{{modelName}}go"
+    module = "reqhandler"
+    srcName = "handler.go.tmpl"
+    dstPath = "{{pathBeego}}/reqHandler/{{modelName}}Handler.go"
     once = true
+[[descriptor]]
+    module = "model"
+    srcName = "model.go.tmpl"
+    dstPath = "{{pathBeego}}/model/{{modelName}}.go"
+    once = true
+

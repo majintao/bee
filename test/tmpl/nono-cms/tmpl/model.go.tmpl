@@ -3,12 +3,12 @@
 package {{packageName}}
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
-	"strings"
-	"github.com/beego/beego/v2/client/orm"
-	{% for value in packageImports %}"{{value}}"
+        "errors"
+        "fmt"
+        "reflect"
+        "strings"
+        "github.com/beego/beego/v2/client/orm"
+        {% for value in packageImports %}"{{value}}"
     {% endfor %}
 )
 
@@ -17,3 +17,7 @@ type {{modelName|upperFirst}} struct {
      {% endfor %}
 }
 
+
+func (t *{{modelName|upperFirst}}) TableName() string {
+        return "{{modelName|snakeString}}"
+}

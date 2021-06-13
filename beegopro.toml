@@ -10,7 +10,7 @@ proType = "nono-cms"
 ## field information of example table
 [models.example]
     names = ["row1","row2","row3","row4","row5"]
-    orms = ["string","string","date","date","array,example2"]
+    orms = ["string","string","date","date","array,cms.Example2"]
     comments = ["字段一","字段二","字段三","字段四","对象五"]
 
 [models.example2]
